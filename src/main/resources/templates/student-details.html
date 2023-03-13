@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Dynamic page title based on student's name -->
+    <title th:text="${student.firstName + ' ' + student.lastName + ' Details'}">Student Details</title>
+    <!-- Link to the global stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <!-- Page Header -->
+        <header>
+            <h1 th:text="${student.firstName + ' ' + student.lastName + ' Details'}">Student Details</h1>
+            <!-- Navigation link to go back to the student list -->
+            <nav>
+                <a th:href="@{/students}" class="btn btn-secondary">Back to Student List</a>
+            </nav>
+        </header>
+
+        <!-- Main content area for student details and grades -->
+        <main>
+            <!-- Section to display core student information -->
+            <section class="student-details-card">
+                <h2>Student Information</h2>
+                <div class="detail-item">
+                    <strong>ID:</strong> <span th:text="${student.id}">1</span>
+                </div>
+                <div class="detail-item">
+                    <strong>First Name:</strong> <span th:text="${student.firstName}">John</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Last Name:</strong> <span th:text="${student.lastName}">Doe</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Email:</strong> <span th:text="${student.email}">john.doe@example.com</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Date of Birth:</strong> <span th:text="${#temporals.format(student.dateOfBirth, 'dd MMMM yyyy')}">01 January 2000</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Enrollment Date:</strong> <span th:text="${#temporals.format(student.enrollmentDate, 'dd MMMM yyyy')}">01 September 2020</span>
+                </div>
+            </section>
+
+            <!-- Section to display the student's grades -->
+            <section class="grades-section">
+                <h2>Grades</h2>
+                <!-- Conditional display: message if no grades, or table if grades exist -->
+                <div th:if="${#lists.isEmpty(student.grades)}" class="alert alert-info">
+                    No grades recorded for this student yet.
+                </div>
+                <table th:unless="${#lists.isEmpty(student.grades)}" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Grade Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Iterate over each grade associated with the student -->
+                        <tr th:each="grade : ${student.grades}">
+                            <td th:text="${grade.subject}">Mathematics</td>
+                            <td th:text="${grade.score}">85</td>
+                            <!-- Format the grade date for better readability -->
+                            <td th:text="${#temporals.format(grade.gradeDate, 'dd MMMM yyyy')}">15 December 2023</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="actions-group">
+                    <!-- Link to add a new grade for this specific student -->
+                    <a th:href="@{/students/{studentId}/grades/new(studentId=${student.id})}" class="btn btn-primary">Add New Grade</a>
+                </div>
+            </section>
+
+            <!-- Section for student management actions (edit, delete) -->
+            <section class="actions-section">
+                <h2>Actions</h2>
+                <div class="actions-group">
+                    <!-- Link to the student edit form, passing the student ID -->
+                    <a th:href="@{/students/edit/{id}(id=${student.id})}" class="btn btn-warning">Edit Student</a>
+
+                    <!-- Form for deleting the student.
+                         Uses POST method with a hidden _method field to simulate DELETE for RESTful endpoints.
+                         Includes a JavaScript confirmation for user safety. -->
+                    <form th:action="@{/students/{id}(id=${student.id})}" th:method="post" style="display:inline;">
+                        <input type="hidden" name="_method" value="delete" />
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this student and all associated grades? This action cannot be undone.');">Delete Student</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- Page Footer -->
+        <footer>
+            <p>&copy; 2023 Student Management System</p>
+        </footer>
+    </div>
+</body>
+</html>
